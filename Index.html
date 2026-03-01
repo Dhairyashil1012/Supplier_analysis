@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SupplierBook</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --earth:#92400e;--earth-dark:#78350f;--earth-light:#fef3c7;
+  --soil:#451a03;--soil-mid:#7c2d12;
+  --green:#15803d;--green-light:#f0fdf4;--green-mid:#dcfce7;
+  --red:#dc2626;--red-light:#fef2f2;
+  --amber:#d97706;--amber-light:#fffbeb;
+  --gold:#f59e0b;
+  --cream:#fffbf0;--cream-dark:#fef3c7;
+  --gray-50:#fafaf9;--gray-100:#f5f5f4;--gray-200:#e7e5e4;
+  --gray-400:#a8a29e;--gray-600:#57534e;--gray-800:#292524;--gray-900:#1c1917;
+  --white:#ffffff;
+  --font-display:'Syne',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+  --r:10px;--r-lg:16px;--r-xl:22px;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --sh-md:0 4px 12px rgba(0,0,0,.1),0 2px 4px rgba(0,0,0,.06);
+  --sh-lg:0 10px 25px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.06);
+  --sh-xl:0 20px 40px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--cream);color:var(--gray-900);min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5{font-family:var(--font-display)}
+button,input,select,textarea{font-family:var(--font-body)}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--earth),var(--gold),var(--green));z-index:99999;transition:width .3s;border-radius:0 2px 2px 0}
+.nav{background:var(--soil);color:var(--white);padding:0 28px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:58px;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.nav-brand{display:flex;align-items:center;gap:10px;cursor:pointer}
+.nav-logo{width:36px;height:36px;background:linear-gradient(135deg,var(--earth),var(--gold));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.nav-name{font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:-.3px}
+.nav-sub{font-size:10px;opacity:.5;font-weight:500;margin-top:1px}
+.nav-tabs{display:flex;gap:2px}
+.ntab{padding:8px 16px;border:none;background:transparent;color:rgba(255,255,255,.6);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;transition:all .2s;white-space:nowrap;font-family:var(--font-body)}
+.ntab:hover{background:rgba(255,255,255,.1);color:var(--white)}
+.ntab.active{background:rgba(255,255,255,.15);color:var(--white)}
+.page{display:none;animation:up .25s ease}
+.page.active{display:block}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.wrap{max-width:960px;margin:0 auto;padding:32px 20px 80px}
+.wrap.xl{max-width:1160px}
+.ph{margin-bottom:28px}
+.ph h2{font-size:24px;font-weight:800;color:var(--gray-900);margin-bottom:4px;letter-spacing:-.4px}
+.ph p{font-size:14px;color:var(--gray-500)}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:var(--white);border-radius:var(--r-lg);padding:20px 18px;box-shadow:var(--sh);border:1px solid var(--gray-200);position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc-brown::before{background:var(--earth)}.sc-green::before{background:var(--green)}.sc-red::before{background:var(--red)}.sc-amber::before{background:var(--amber)}.sc-gold::before{background:var(--gold)}.sc-blue::before{background:#2563eb}
+.stat-card .si{font-size:28px;margin-bottom:8px;display:block}
+.stat-card .sv{font-size:30px;font-weight:800;font-family:var(--font-display);color:var(--gray-900);line-height:1}
+.stat-card .sl{font-size:12px;color:var(--gray-400);margin-top:4px;font-weight:500}
+.search-hero{background:linear-gradient(135deg,var(--soil) 0%,var(--soil-mid) 60%,var(--earth) 100%);border-radius:var(--r-xl);padding:32px 28px;margin-bottom:28px;box-shadow:var(--sh-lg);position:relative;overflow:hidden}
+.search-hero::after{content:'🌾';position:absolute;right:28px;bottom:-10px;font-size:90px;opacity:.08;line-height:1}
+.search-hero h3{font-size:20px;font-weight:800;color:var(--white);margin-bottom:4px}
+.search-hero p{font-size:13px;color:rgba(255,255,255,.65);margin-bottom:20px}
+.search-row{display:flex;gap:10px;flex-wrap:wrap}
+.search-input{flex:1;min-width:200px;padding:13px 16px;border:none;border-radius:var(--r);font-size:15px;background:rgba(255,255,255,.95);color:var(--gray-900);font-family:var(--font-body);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.search-input:focus{outline:none;box-shadow:0 0 0 3px rgba(245,158,11,.4),0 2px 8px rgba(0,0,0,.2)}
+.btn-search{padding:13px 24px;background:var(--gold);color:var(--soil);border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:var(--font-body)}
+.btn-search:hover{background:#fbbf24;transform:translateY(-1px)}
+.result-grid{display:grid;gap:14px}
+.result-card{background:var(--white);border-radius:var(--r-lg);padding:20px 22px;box-shadow:var(--sh);border:1px solid var(--gray-200);transition:box-shadow .2s,transform .2s;cursor:pointer;position:relative}
+.result-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
+.result-card.blacklisted-card{border-color:#fca5a5;background:#fff5f5}
+.rank-badge{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;font-family:var(--font-display)}
+.rank-1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:var(--soil)}.rank-2{background:#e5e7eb;color:#374151}.rank-3{background:#d97706;color:#fff}.rank-n{background:var(--gray-100);color:var(--gray-600)}
+.rc-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.rc-avatar{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;font-weight:700;font-family:var(--font-display);background:var(--earth-light);color:var(--earth)}
+.rc-info h4{font-size:16px;font-weight:700;color:var(--gray-900);margin-bottom:3px}
+.rc-info .rc-loc{font-size:13px;color:var(--gray-500);display:flex;align-items:center;gap:5px}
+.rc-info .rc-phone{font-size:13px;font-weight:600;color:var(--earth);margin-top:4px}
+.stars{display:flex;gap:2px;margin-bottom:6px}
+.star{font-size:16px;line-height:1}.star.on{color:var(--gold)}.star.off{color:var(--gray-200)}
+.rc-pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.pill{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.pill-green{background:var(--green-mid);color:var(--green)}.pill-amber{background:#fef9c3;color:#854d0e}.pill-red{background:#fee2e2;color:var(--red)}.pill-gray{background:var(--gray-100);color:var(--gray-600)}.pill-earth{background:var(--earth-light);color:var(--earth)}.pill-warn{background:#fee2e2;color:var(--red);font-weight:700}
+.warn-strip{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:13px;color:var(--red);display:flex;gap:8px;align-items:flex-start}
+.card{background:var(--white);border-radius:var(--r-lg);padding:24px;box-shadow:var(--sh);border:1px solid var(--gray-200);margin-bottom:20px}
+.card-title{font-size:15px;font-weight:700;color:var(--gray-900);margin-bottom:18px;display:flex;align-items:center;gap:8px;font-family:var(--font-display)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fg{display:flex;flex-direction:column;gap:6px}
+.fg.full{grid-column:1/-1}
+label{font-size:13px;font-weight:600;color:var(--gray-700)}
+.req{color:var(--red)}
+.fi{padding:11px 13px;border:1.5px solid var(--gray-200);border-radius:var(--r);font-size:14px;background:var(--white);color:var(--gray-900);transition:all .2s;font-family:var(--font-body)}
+.fi:focus{outline:none;border-color:var(--earth);box-shadow:0 0 0 3px rgba(146,64,14,.1)}
+textarea.fi{resize:vertical;min-height:80px}
+.fi-hint{font-size:11px;color:var(--gray-400);margin-top:3px}
+.star-input{display:flex;gap:6px;padding:4px 0}
+.star-input span{font-size:28px;cursor:pointer;transition:transform .15s;line-height:1}
+.star-input span:hover{transform:scale(1.15)}
+.star-input span.lit{color:var(--gold)}.star-input span.dim{color:var(--gray-200)}
+.btn{padding:11px 22px;border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:var(--font-body);display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:linear-gradient(135deg,var(--earth),var(--earth-dark));color:var(--white);width:100%;justify-content:center;padding:13px;font-size:15px}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(146,64,14,.35)}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-green{background:var(--green);color:var(--white)}.btn-green:hover{background:#166534}
+.btn-danger{background:var(--red);color:var(--white)}.btn-danger:hover{background:#b91c1c}
+.btn-outline{background:transparent;border:1.5px solid var(--gray-200);color:var(--gray-700);padding:9px 18px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-outline:hover{border-color:var(--earth);color:var(--earth)}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:6px}
+.btn-warn{background:#fee2e2;color:var(--red);border:none;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:12px;padding:6px 12px;border-radius:6px;transition:all .2s}
+.btn-warn:hover{background:#fecaca}
+.alert{padding:13px 16px;border-radius:var(--r);margin-bottom:18px;font-size:14px;display:none;align-items:center;gap:10px;font-weight:500;line-height:1.5}
+.alert.show{display:flex}
+.alert-success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.alert-error{background:var(--red-light);color:#991b1b;border:1px solid #fecaca}
+.tbl-wrap{background:var(--white);border-radius:var(--r-lg);border:1px solid var(--gray-200);overflow:auto;box-shadow:var(--sh)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:700px}
+th{background:var(--gray-50);color:var(--gray-600);padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-bottom:1.5px solid var(--gray-200)}
+td{padding:12px 14px;border-bottom:1px solid var(--gray-100);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gray-50)}
+.empty-row td{text-align:center;padding:48px;color:var(--gray-400)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.b-active{background:var(--green-mid);color:var(--green)}.b-black{background:#fee2e2;color:var(--red)}
+.b-warn-h{background:#fee2e2;color:var(--red)}.b-warn-m{background:#fef9c3;color:#854d0e}.b-warn-l{background:var(--green-mid);color:var(--green)}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;justify-content:center;align-items:flex-start;padding:40px 20px;overflow-y:auto;backdrop-filter:blur(2px)}
+.modal-bg.show{display:flex}
+.modal{background:var(--white);border-radius:var(--r-xl);padding:28px;width:100%;max-width:560px;box-shadow:var(--sh-xl);animation:up .2s ease;margin:auto}
+.modal h3{font-size:18px;font-weight:800;margin-bottom:20px;color:var(--gray-900);font-family:var(--font-display)}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.detail-header{background:linear-gradient(135deg,var(--soil),var(--soil-mid));border-radius:var(--r-xl);padding:28px;color:var(--white);margin-bottom:20px}
+.dh-top{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.dh-avatar{width:60px;height:60px;border-radius:16px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:26px;font-family:var(--font-display);font-weight:800}
+.dh-name{font-size:22px;font-weight:800;font-family:var(--font-display)}
+.dh-sub{font-size:13px;opacity:.7;margin-top:3px}
+.dh-pills{display:flex;gap:8px;flex-wrap:wrap}
+.dh-pill{background:rgba(255,255,255,.15);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:600}
+.inner-tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1.5px solid var(--gray-200);padding-bottom:0}
+.itab{padding:10px 16px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--gray-500);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:all .2s;font-family:var(--font-body)}
+.itab:hover{color:var(--gray-800)}.itab.active{color:var(--earth);border-bottom-color:var(--earth)}
+.empty{text-align:center;padding:52px 20px;color:var(--gray-400)}
+.empty .ei{font-size:52px;margin-bottom:14px;opacity:.5}
+.empty h3{font-size:16px;font-weight:700;color:var(--gray-500);margin-bottom:6px;font-family:var(--font-display)}
+.empty p{font-size:14px}
+.sup-list{display:grid;gap:12px}
+.sup-row{background:var(--white);border-radius:var(--r-lg);padding:16px 18px;box-shadow:var(--sh);border:1px solid var(--gray-200);display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s}
+.sup-row:hover{box-shadow:var(--sh-md);transform:translateX(3px)}
+.sup-row.bl{border-color:#fca5a5;background:#fff5f5}
+.sup-av{width:44px;height:44px;border-radius:11px;background:var(--earth-light);color:var(--earth);font-size:16px;font-weight:800;font-family:var(--font-display);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sup-info{flex:1;min-width:0}
+.sup-info h4{font-size:14px;font-weight:700;color:var(--gray-900)}
+.sup-info p{font-size:12px;color:var(--gray-500);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sup-right{text-align:right;flex-shrink:0}
+.sup-right .sp{font-size:13px;font-weight:600;color:var(--earth)}
+.sup-right .sc{font-size:11px;color:var(--gray-400);margin-top:2px}
+.warn-card{background:var(--white);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--sh);border-left:4px solid var(--red);margin-bottom:12px}
+.warn-card.severity-high{border-left-color:var(--red)}.warn-card.severity-medium{border-left-color:var(--amber)}.warn-card.severity-low{border-left-color:var(--green)}
+.wc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:10px;flex-wrap:wrap}
+.wc-top h4{font-size:14px;font-weight:700;color:var(--gray-900)}
+.wc-desc{font-size:14px;color:var(--gray-600);line-height:1.6}
+.wc-meta{font-size:12px;color:var(--gray-400);margin-top:8px}
+.section-head{font-size:13px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px;margin-top:4px;display:flex;align-items:center;gap:8px}
+.section-head::after{content:'';flex:1;height:1px;background:var(--gray-200)}
+@media(max-width:640px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .fg.full{grid-column:1}
+  .nav-tabs{display:none}
+  .search-row{flex-direction:column}
+  .rc-top{gap:10px}
+}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<nav class="nav">
+  <div class="nav-brand" onclick="goTab('dash')">
+    <div class="nav-logo">📦</div>
+    <div><div class="nav-name">SupplierBook</div><div class="nav-sub">Supplier Analysis System</div></div>
+  </div>
+  <div class="nav-tabs">
+    <button class="ntab active" id="nt-dash"      onclick="goTab('dash')">📊 Dashboard</button>
+    <button class="ntab"        id="nt-find"      onclick="goTab('find')">🔍 Find Supplier</button>
+    <button class="ntab"        id="nt-add"       onclick="goTab('add')">➕ Add Supplier</button>
+    <button class="ntab"        id="nt-suppliers" onclick="goTab('suppliers')">📋 All Suppliers</button>
+    <button class="ntab"        id="nt-warnings"  onclick="goTab('warnings')">⚠️ Warnings</button>
+  </div>
+</nav>
+<div style="background:var(--soil);display:flex;overflow-x:auto;padding:0 8px;gap:2px;border-bottom:1px solid rgba(255,255,255,.1)">
+  <button class="ntab active" id="mn-dash"      onclick="goTab('dash')"      style="white-space:nowrap;font-size:12px;padding:10px 12px">📊</button>
+  <button class="ntab"        id="mn-find"      onclick="goTab('find')"      style="white-space:nowrap;font-size:12px;padding:10px 12px">🔍 Find</button>
+  <button class="ntab"        id="mn-add"       onclick="goTab('add')"       style="white-space:nowrap;font-size:12px;padding:10px 12px">➕ Add</button>
+  <button class="ntab"        id="mn-suppliers" onclick="goTab('suppliers')" style="white-space:nowrap;font-size:12px;padding:10px 12px">📋 List</button>
+  <button class="ntab"        id="mn-warnings"  onclick="goTab('warnings')"  style="white-space:nowrap;font-size:12px;padding:10px 12px">⚠️ Warn</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dash" class="page active">
+<div class="wrap">
+  <div class="ph"><h2>Dashboard Overview</h2><p>Your supplier network at a glance</p></div>
+  <div class="stats-grid">
+    <div class="stat-card sc-brown"><span class="si">🧑‍🌾</span><div class="sv" id="st-total">-</div><div class="sl">Total Suppliers</div></div>
+    <div class="stat-card sc-green"><span class="si">✅</span><div class="sv" id="st-active">-</div><div class="sl">Active Suppliers</div></div>
+    <div class="stat-card sc-red"><span class="si">🚫</span><div class="sv" id="st-black">-</div><div class="sl">Blacklisted</div></div>
+    <div class="stat-card sc-gold"><span class="si">📦</span><div class="sv" id="st-prod">-</div><div class="sl">Product Entries</div></div>
+    <div class="stat-card sc-amber"><span class="si">⭐</span><div class="sv" id="st-avg">-</div><div class="sl">Avg Quality Rating</div></div>
+    <div class="stat-card sc-red"><span class="si">⚠️</span><div class="sv" id="st-warn">-</div><div class="sl">Warning Notes</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+    <div class="card" id="dashTopProds"><div class="card-title">📦 Top Products</div><div style="color:var(--gray-400);font-size:13px">Loading...</div></div>
+    <div class="card" id="dashRecent"><div class="card-title">🕐 Recent Suppliers</div><div style="color:var(--gray-400);font-size:13px">Loading...</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🚀 Quick Actions</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <button class="btn btn-primary" onclick="goTab('find')" style="background:linear-gradient(135deg,var(--green),#166534)">🔍 Find Best Supplier</button>
+      <button class="btn btn-primary" onclick="goTab('add')">➕ Add New Supplier</button>
+      <button class="btn btn-primary" onclick="goTab('warnings')" style="background:linear-gradient(135deg,var(--red),#991b1b)">⚠️ View Warnings</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FIND -->
+<div id="page-find" class="page">
+<div class="wrap">
+  <div class="search-hero">
+    <h3>Find Best Supplier for a Product</h3>
+    <p>Type any product name — results sorted by quality rating, best first</p>
+    <div class="search-row">
+      <input class="search-input" id="searchInput" placeholder="e.g. Wheat, Rice, Bajri, Peanuts..." list="productList" onkeydown="if(event.key==='Enter')doSearch()">
+      <datalist id="productList"></datalist>
+      <button class="btn-search" id="btnSearch" onclick="doSearch()">🔍 Search</button>
+    </div>
+  </div>
+  <div id="searchError" style="display:none;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:12px 16px;border-radius:10px;margin-bottom:14px;font-size:14px;font-weight:500"></div>
+  <div id="searchResults"></div>
+</div>
+</div>
+
+<!-- ADD -->
+<div id="page-add" class="page">
+<div class="wrap">
+  <div class="ph"><h2>Add Information</h2><p>Add a new supplier or record a product entry</p></div>
+  <div class="inner-tabs">
+    <button class="itab active" id="it-addsup"  onclick="switchAddTab('addsup')">🧑‍🌾 New Supplier</button>
+    <button class="itab"        id="it-addprod" onclick="switchAddTab('addprod')">📦 Product Entry</button>
+    <button class="itab"        id="it-addwarn" onclick="switchAddTab('addwarn')">⚠️ Warning Note</button>
+  </div>
+  <!-- ADD SUPPLIER -->
+  <div id="subtab-addsup">
+    <div id="supAlert" class="alert"></div>
+    <div class="card">
+      <div class="card-title">🧑‍🌾 New Supplier Details</div>
+      <div class="form-grid">
+        <div class="fg"><label>Full Name <span class="req">*</span></label><input class="fi" id="s-name" placeholder="e.g. Ramesh Patel"></div>
+        <div class="fg"><label>Phone Number <span class="req">*</span></label><input class="fi" id="s-phone" placeholder="10-digit mobile" maxlength="10" type="tel"></div>
+        <div class="fg"><label>Alternate Phone</label><input class="fi" id="s-phone2" placeholder="Optional" type="tel" maxlength="10"></div>
+        <div class="fg"><label>Village / Area <span class="req">*</span></label><input class="fi" id="s-village" placeholder="e.g. Anand, Nadiad"></div>
+        <div class="fg"><label>City / District</label><input class="fi" id="s-city" placeholder="e.g. Anand, Kheda"></div>
+        <div class="fg"><label>Products They Supply</label><input class="fi" id="s-products" placeholder="e.g. Wheat, Rice, Bajri"></div>
+      </div>
+      <button class="btn btn-primary" id="btnAddSup" onclick="addSupplier()" style="margin-top:6px">Add Supplier →</button>
+    </div>
+  </div>
+  <!-- ADD PRODUCT -->
+  <div id="subtab-addprod" style="display:none">
+    <div id="prodAlert" class="alert"></div>
+    <div class="card">
+      <div class="card-title">📦 Product Entry for a Supplier</div>
+      <div class="form-grid">
+        <div class="fg"><label>Supplier ID <span class="req">*</span></label>
+          <select class="fi" id="p-supid" onchange="onSupSelect()"><option value="">-- Select Supplier --</option></select>
+        </div>
+        <div class="fg"><label>Product Name <span class="req">*</span></label><input class="fi" id="p-product" placeholder="e.g. Wheat" list="prodList2"><datalist id="prodList2"></datalist></div>
+        <div class="fg full"><label>Quality Rating <span class="req">*</span></label>
+          <div class="star-input" id="starInput">
+            <span data-v="1" onclick="setRating(1)" class="dim">★</span>
+            <span data-v="2" onclick="setRating(2)" class="dim">★</span>
+            <span data-v="3" onclick="setRating(3)" class="dim">★</span>
+            <span data-v="4" onclick="setRating(4)" class="dim">★</span>
+            <span data-v="5" onclick="setRating(5)" class="dim">★</span>
+          </div>
+          <span id="ratingLabel" style="font-size:13px;color:var(--gray-500)">Click to rate</span>
+        </div>
+        <div class="fg"><label>Price per Quintal (₹)</label><input class="fi" id="p-price" placeholder="e.g. 2100" type="number"></div>
+        <div class="fg"><label>Quantity Available (Qtl)</label><input class="fi" id="p-qty" placeholder="e.g. 200" type="number"></div>
+        <div class="fg"><label>Last Supply Date</label><input class="fi" id="p-date" type="date"></div>
+        <div class="fg"><label>Moisture Level</label>
+          <select class="fi" id="p-moisture"><option value="">-- Select --</option><option>Low</option><option>Normal</option><option>High</option></select>
+        </div>
+        <div class="fg"><label>Grade</label>
+          <select class="fi" id="p-grade"><option value="">-- Select --</option><option>A</option><option>B</option><option>C</option></select>
+        </div>
+        <div class="fg full"><label>Notes / Observations</label>
+          <textarea class="fi" id="p-notes" placeholder="Any special notes about quality, issues, or observations..."></textarea>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btnAddProd" onclick="addProduct()" style="margin-top:6px">Add Product Entry →</button>
+    </div>
+  </div>
+  <!-- ADD WARNING -->
+  <div id="subtab-addwarn" style="display:none">
+    <div id="warnAlert" class="alert"></div>
+    <div class="card" style="border-left:4px solid var(--red)">
+      <div class="card-title">⚠️ Add Warning / Fraud Alert</div>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:18px">Record any bad experience, fraud attempt, quality issues, or dishonest behaviour by a supplier</p>
+      <div class="form-grid">
+        <div class="fg"><label>Supplier <span class="req">*</span></label>
+          <select class="fi" id="w-supid"><option value="">-- Select Supplier --</option></select>
+        </div>
+        <div class="fg"><label>Product Involved</label><input class="fi" id="w-product" placeholder="e.g. Rice, Wheat"></div>
+        <div class="fg"><label>Incident Date</label><input class="fi" id="w-date" type="date"></div>
+        <div class="fg"><label>Severity <span class="req">*</span></label>
+          <select class="fi" id="w-severity">
+            <option value="High">🔴 High — Fraud / Cheating</option>
+            <option value="Medium">🟡 Medium — Bad Quality</option>
+            <option value="Low">🟢 Low — Minor Issue</option>
+          </select>
+        </div>
+        <div class="fg full"><label>Description <span class="req">*</span></label>
+          <textarea class="fi" id="w-desc" rows="4" placeholder="Describe exactly what happened. Be specific — this helps in future decisions..."></textarea>
+        </div>
+        <div class="fg"><label>Added By</label><input class="fi" id="w-by" placeholder="Your name"></div>
+        <div class="fg" style="align-self:flex-end">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+            <input type="checkbox" id="w-blacklist" style="width:16px;height:16px;accent-color:var(--red)">
+            Auto-blacklist supplier if High severity
+          </label>
+        </div>
+      </div>
+      <button class="btn btn-danger" id="btnAddWarn" onclick="addWarning()" style="margin-top:6px;width:100%;justify-content:center">⚠️ Add Warning Note</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ALL SUPPLIERS -->
+<div id="page-suppliers" class="page">
+<div class="wrap">
+  <div class="ph" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div><h2>All Suppliers</h2><p>Click any supplier to view full profile</p></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <input class="fi" id="supSearch" placeholder="Search name, phone, product..." oninput="filterSuppliers()" style="width:240px">
+      <select class="fi" id="supFilter" onchange="filterSuppliers()" style="width:140px">
+        <option value="All">All</option><option value="Active">Active Only</option><option value="Blacklisted">Blacklisted</option>
+      </select>
+    </div>
+  </div>
+  <div id="supplierList"><div class="empty"><div class="ei">⏳</div><h3>Loading...</h3></div></div>
+</div>
+</div>
+
+<!-- WARNINGS -->
+<div id="page-warnings" class="page">
+<div class="wrap">
+  <div class="ph"><h2>⚠️ Warning Notes</h2><p>All fraud alerts and quality complaints</p></div>
+  <div id="warnList"><div class="empty"><div class="ei">⏳</div><h3>Loading...</h3></div></div>
+</div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-bg" id="detailModal">
+  <div class="modal" style="max-width:680px">
+    <div id="detailContent"></div>
+    <div class="modal-foot">
+      <button class="btn-outline" onclick="closeDetail()">Close</button>
+      <button class="btn btn-warn" id="btnBlacklist" onclick="toggleBlacklist()">🚫 Blacklist</button>
+      <button class="btn btn-primary" onclick="goAddProductFor()" id="btnAddForSup">+ Add Product Entry</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════╗
+// ║  PASTE YOUR APPS SCRIPT DEPLOYMENT URL BELOW            ║
+// ║  Apps Script → Deploy → Manage Deployments → copy URL  ║
+// ╚══════════════════════════════════════════════════════════╝
+var API_URL = "https://script.google.com/macros/s/AKfycbw7cKRhM51pIoRWsQH6S8XOeJqTkaPJu0mHNv-GbGFGHbA4RwAvmbk1eX7JUD0C_JU/exec";
+
+// ── API HELPER ───────────────────────────────────────────────
+// All calls go through fetch() — Google Drive CANNOT intercept
+function api(action, params) {
+  var body = Object.assign({ action: action }, params || {});
+  return fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(body)
+  }).then(function(res) {
+    if (!res.ok) throw new Error('Network error ' + res.status);
+    return res.json();
+  });
+}
+
+// ── STATE ────────────────────────────────────────────────────
+var _suppliers = [], _rating = 0, _detailSup = null;
+
+// ── LOADING BAR ──────────────────────────────────────────────
+function L(v) {
+  var b = document.getElementById('bar');
+  if (v) { b.style.width = '0'; b.style.transition = 'none'; setTimeout(function(){ b.style.transition = 'width 2s ease'; b.style.width = '75%'; }, 10); }
+  else { b.style.transition = 'width .2s ease'; b.style.width = '100%'; setTimeout(function(){ b.style.width = '0'; b.style.transition = 'none'; }, 350); }
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+var tabs = ['dash','find','add','suppliers','warnings'];
+function goTab(id) {
+  tabs.forEach(function(t) {
+    document.getElementById('page-'+t).classList.toggle('active', t===id);
+    var nt=document.getElementById('nt-'+t), mn=document.getElementById('mn-'+t);
+    if(nt) nt.classList.toggle('active', t===id);
+    if(mn) mn.classList.toggle('active', t===id);
+  });
+  window.scrollTo(0, 0);
+  if(id==='dash')      loadDashboard();
+  if(id==='find')      loadProductNames();
+  if(id==='add')       loadSuppliersForForms();
+  if(id==='suppliers') renderSuppliers();
+  if(id==='warnings')  loadWarnings();
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────
+function loadDashboard() {
+  L(true);
+  api('getDashboardStats', {})
+    .then(function(d) {
+      L(false);
+      document.getElementById('st-total').textContent  = d.totalSuppliers;
+      document.getElementById('st-active').textContent = d.activeSuppliers;
+      document.getElementById('st-black').textContent  = d.blacklisted;
+      document.getElementById('st-prod').textContent   = d.totalProducts;
+      document.getElementById('st-avg').textContent    = d.avgRating + '⭐';
+      document.getElementById('st-warn').textContent   = d.totalWarnings;
+      var tp = document.getElementById('dashTopProds');
+      if (d.topProducts.length) {
+        tp.innerHTML = '<div class="card-title">📦 Top Products</div>' +
+          d.topProducts.map(function(p,i){ return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-100);font-size:14px">'+
+            '<span>'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':'  ')+'  '+p.name+'</span>'+
+            '<span style="font-weight:700;color:var(--earth)">'+p.count+' entries</span></div>'; }).join('');
+      } else { tp.innerHTML = '<div class="card-title">📦 Top Products</div><p style="color:var(--gray-400);font-size:13px">No product entries yet.</p>'; }
+      var rr = document.getElementById('dashRecent');
+      if (d.recentSuppliers.length) {
+        rr.innerHTML = '<div class="card-title">🕐 Recent Suppliers</div>' +
+          d.recentSuppliers.map(function(s){ return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-100);font-size:14px">'+
+            '<div><strong>'+s.name+'</strong><br><small style="color:var(--gray-400)">'+s.village+'</small></div>'+
+            '<span style="color:var(--gray-400);font-size:12px">'+s.addedOn+'</span></div>'; }).join('');
+      } else { rr.innerHTML = '<div class="card-title">🕐 Recent Suppliers</div><p style="color:var(--gray-400);font-size:13px">No suppliers yet.</p>'; }
+    })
+    .catch(function(e) { L(false); console.error(e); });
+}
+
+// ── FIND BEST SUPPLIER ───────────────────────────────────────
+function loadProductNames() {
+  api('getProductNames', {})
+    .then(function(names) {
+      var dl  = document.getElementById('productList');
+      var dl2 = document.getElementById('prodList2');
+      [dl, dl2].forEach(function(el) {
+        if (!el) return;
+        el.innerHTML = '';
+        names.forEach(function(n) { var o = document.createElement('option'); o.value = n; el.appendChild(o); });
+      });
+    }).catch(function(){});
+}
+
+function doSearch() {
+  var q      = document.getElementById('searchInput').value.trim();
+  var errEl  = document.getElementById('searchError');
+  var resEl  = document.getElementById('searchResults');
+  var btn    = document.getElementById('btnSearch');
+  errEl.style.display = 'none';
+  if (!q) { resEl.innerHTML = '<div class="empty"><div class="ei">🔍</div><h3>Type a product name above</h3><p>e.g. Wheat, Rice, Bajri, Peanuts</p></div>'; return; }
+  resEl.innerHTML = '<div class="empty"><div class="ei">⏳</div><h3>Searching for "'+q+'"...</h3></div>';
+  btn.disabled = true; btn.textContent = 'Searching...'; L(true);
+  api('findBestSuppliers', { productName: q })
+    .then(function(results) {
+      L(false); btn.disabled = false; btn.textContent = '🔍 Search';
+      renderResults(results, q);
+    })
+    .catch(function(e) {
+      L(false); btn.disabled = false; btn.textContent = '🔍 Search';
+      resEl.innerHTML = '';
+      errEl.textContent = '❌ Search failed: ' + (e ? e.message : 'Unknown error.');
+      errEl.style.display = 'block';
+    });
+}
+
+function renderResults(results, q) {
+  var el = document.getElementById('searchResults');
+  if (!results || results.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="ei">📭</div><h3>No suppliers found for "'+q+'"</h3><p>Try a different product name or add a product entry for this product</p></div>';
+    return;
+  }
+  var goodCount = results.filter(function(r){ return r.blacklisted !== 'Yes'; }).length;
+  var html = '<p style="font-size:13px;color:var(--gray-500);margin-bottom:14px">Found <strong>'+results.length+' supplier(s)</strong> for "'+q+'" — '+goodCount+' active, sorted by quality rating</p>';
+  html += '<div class="result-grid">';
+  results.forEach(function(r, i) {
+    var rank = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
+    var rankLabel = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+    var stars = ''; for (var s=1;s<=5;s++) stars += '<span class="star '+(s<=r.rating?'on':'off')+'">★</span>';
+    var isBlack = r.blacklisted === 'Yes';
+    html += '<div class="result-card'+(isBlack?' blacklisted-card':'')+'" onclick="openDetail(\''+r.supplierId+'\')">'+
+      '<div class="rank-badge '+rank+'">'+rankLabel+'</div>'+
+      '<div class="rc-top">'+
+        '<div class="rc-avatar">'+r.supplierName.charAt(0)+'</div>'+
+        '<div class="rc-info"><h4>'+r.supplierName+'</h4>'+
+          '<div class="rc-loc">📍 '+r.village+(r.city?', '+r.city:'')+'</div>'+
+          '<div class="rc-phone">📞 '+r.phone+(r.phone2?' / '+r.phone2:'')+'</div>'+
+        '</div></div>'+
+      '<div class="stars">'+stars+'</div>'+
+      '<div style="font-size:13px;color:var(--gray-600);margin-bottom:8px">'+r.notes+'</div>'+
+      '<div class="rc-pills">'+
+        (r.price?'<span class="pill pill-earth">₹'+r.price+'/Qtl</span>':'')+
+        (r.quantity?'<span class="pill pill-gray">'+r.quantity+' Qtl available</span>':'')+
+        (r.moisture?'<span class="pill '+(r.moisture==='Low'?'pill-green':r.moisture==='High'?'pill-red':'pill-amber')+'">Moisture: '+r.moisture+'</span>':'')+
+        (r.grade?'<span class="pill pill-earth">Grade '+r.grade+'</span>':'')+
+        (r.lastDate?'<span class="pill pill-gray">Last: '+r.lastDate+'</span>':'')+
+        (isBlack?'<span class="pill pill-warn">🚫 BLACKLISTED</span>':'')+
+      '</div>'+
+      (isBlack?'<div class="warn-strip">⚠️ This supplier is blacklisted. Check Warning Notes before dealing.</div>':'')+
+    '</div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ── ADD SUPPLIER ─────────────────────────────────────────────
+var _addTab = 'addsup';
+function switchAddTab(t) {
+  ['addsup','addprod','addwarn'].forEach(function(x) {
+    document.getElementById('subtab-'+x).style.display = x===t ? '' : 'none';
+    document.getElementById('it-'+x).classList.toggle('active', x===t);
+  });
+  _addTab = t;
+}
+
+function loadSuppliersForForms() {
+  L(true);
+  api('getAllSuppliers', {})
+    .then(function(sups) {
+      L(false); _suppliers = sups || [];
+      ['p-supid','w-supid'].forEach(function(id) {
+        var sel = document.getElementById(id); if (!sel) return;
+        sel.innerHTML = '<option value="">-- Select Supplier --</option>';
+        sups.forEach(function(s) { sel.innerHTML += '<option value="'+s.id+'">'+s.name+' ('+s.id+') — '+s.village+'</option>'; });
+      });
+    }).catch(function(){ L(false); });
+}
+
+function addSupplier() {
+  var name    = document.getElementById('s-name').value.trim();
+  var phone   = document.getElementById('s-phone').value.trim();
+  var village = document.getElementById('s-village').value.trim();
+  if (!name)            return showAlert('supAlert','Please enter supplier name.','error');
+  if (!phone)           return showAlert('supAlert','Please enter phone number.','error');
+  if (phone.length!==10)return showAlert('supAlert','Phone number must be 10 digits.','error');
+  if (!village)         return showAlert('supAlert','Please enter village/area.','error');
+  var btn = document.getElementById('btnAddSup');
+  btn.disabled = true; btn.textContent = 'Adding...'; L(true);
+  api('addSupplier', { data: {
+    name:     name,    phone:    phone,
+    phone2:   document.getElementById('s-phone2').value.trim(),
+    village:  village, city:     document.getElementById('s-city').value.trim(),
+    products: document.getElementById('s-products').value.trim()
+  }}).then(function(r) {
+    L(false); btn.disabled = false; btn.textContent = 'Add Supplier →';
+    if (r.success) {
+      showAlert('supAlert','✅ '+r.message,'success');
+      ['s-name','s-phone','s-phone2','s-village','s-city','s-products'].forEach(function(id){ document.getElementById(id).value=''; });
+      _suppliers = [];
+    } else showAlert('supAlert','❌ '+r.message,'error');
+  }).catch(function(e){ L(false); btn.disabled=false; btn.textContent='Add Supplier →'; showAlert('supAlert','Connection error: '+e.message,'error'); });
+}
+
+// ── ADD PRODUCT ──────────────────────────────────────────────
+function setRating(v) {
+  _rating = v;
+  document.querySelectorAll('#starInput span').forEach(function(s, i) {
+    s.classList.toggle('lit', i < v); s.classList.toggle('dim', i >= v);
+  });
+  var labels = ['','⭐ Poor','⭐⭐ Below Average','⭐⭐⭐ Average','⭐⭐⭐⭐ Good','⭐⭐⭐⭐⭐ Excellent'];
+  document.getElementById('ratingLabel').textContent = labels[v] || '';
+}
+
+function onSupSelect() {
+  // could pre-fill product hint from supplier's product list
+}
+
+function addProduct() {
+  var supId   = document.getElementById('p-supid').value;
+  var product = document.getElementById('p-product').value.trim();
+  if (!supId)   return showAlert('prodAlert','Please select a supplier.','error');
+  if (!product) return showAlert('prodAlert','Please enter product name.','error');
+  if (!_rating) return showAlert('prodAlert','Please select a quality rating.','error');
+  var btn = document.getElementById('btnAddProd');
+  btn.disabled = true; btn.textContent = 'Adding...'; L(true);
+  api('addProduct', { data: {
+    supplierId: supId, product:  product,  rating:    _rating,
+    price:      document.getElementById('p-price').value || 0,
+    quantity:   document.getElementById('p-qty').value || 0,
+    lastDate:   document.getElementById('p-date').value || '',
+    moisture:   document.getElementById('p-moisture').value,
+    grade:      document.getElementById('p-grade').value,
+    notes:      document.getElementById('p-notes').value.trim()
+  }}).then(function(r) {
+    L(false); btn.disabled = false; btn.textContent = 'Add Product Entry →';
+    if (r.success) {
+      showAlert('prodAlert','✅ '+r.message,'success');
+      ['p-product','p-price','p-qty','p-notes','p-date'].forEach(function(id){ document.getElementById(id).value=''; });
+      document.getElementById('p-supid').value = '';
+      _rating = 0;
+      document.querySelectorAll('#starInput span').forEach(function(s){ s.className='dim'; });
+      document.getElementById('ratingLabel').textContent = 'Click to rate';
+    } else showAlert('prodAlert','❌ '+r.message,'error');
+  }).catch(function(e){ L(false); btn.disabled=false; btn.textContent='Add Product Entry →'; showAlert('prodAlert','Connection error: '+e.message,'error'); });
+}
+
+// ── ADD WARNING ──────────────────────────────────────────────
+function addWarning() {
+  var supId    = document.getElementById('w-supid').value;
+  var desc     = document.getElementById('w-desc').value.trim();
+  var severity = document.getElementById('w-severity').value;
+  if (!supId)              return showAlert('warnAlert','Please select a supplier.','error');
+  if (!desc||desc.length<10) return showAlert('warnAlert','Please describe the issue in detail (at least 10 characters).','error');
+  var sup = null;
+  for (var i=0;i<_suppliers.length;i++) { if (_suppliers[i].id===supId){ sup=_suppliers[i]; break; } }
+  var btn = document.getElementById('btnAddWarn');
+  btn.disabled = true; btn.textContent = 'Adding...'; L(true);
+  api('addWarningNote', { data: {
+    supplierId:    supId,
+    supplierName:  sup ? sup.name : '',
+    date:          document.getElementById('w-date').value || '',
+    severity:      severity,
+    product:       document.getElementById('w-product').value.trim(),
+    description:   desc,
+    addedBy:       document.getElementById('w-by').value.trim() || 'Admin',
+    autoBlacklist: document.getElementById('w-blacklist').checked
+  }}).then(function(r) {
+    L(false); btn.disabled = false; btn.textContent = '⚠️ Add Warning Note';
+    if (r.success) {
+      var extra = document.getElementById('w-blacklist').checked && severity==='High' ? ' Supplier has been blacklisted.' : '';
+      showAlert('warnAlert','✅ '+r.message+extra,'success');
+      ['w-product','w-desc','w-by'].forEach(function(id){ document.getElementById(id).value=''; });
+      document.getElementById('w-supid').value = '';
+      document.getElementById('w-blacklist').checked = false;
+    } else showAlert('warnAlert','❌ '+r.message,'error');
+  }).catch(function(e){ L(false); btn.disabled=false; btn.textContent='⚠️ Add Warning Note'; showAlert('warnAlert','Connection error: '+e.message,'error'); });
+}
+
+// ── ALL SUPPLIERS ────────────────────────────────────────────
+function renderSuppliers() {
+  L(true);
+  api('getAllSuppliers', {})
+    .then(function(sups) { L(false); _suppliers = sups || []; displaySuppliers(); })
+    .catch(function(){ L(false); });
+}
+function filterSuppliers() { displaySuppliers(); }
+function displaySuppliers() {
+  var q = (document.getElementById('supSearch') || {}).value || '';
+  var f = (document.getElementById('supFilter') || {}).value || 'All';
+  var filtered = _suppliers.filter(function(s) {
+    var matchQ = !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.phone.includes(q) || s.products.toLowerCase().includes(q.toLowerCase()) || s.village.toLowerCase().includes(q.toLowerCase());
+    var matchF = f==='All' || (f==='Active'&&s.blacklisted!=='Yes') || (f==='Blacklisted'&&s.blacklisted==='Yes');
+    return matchQ && matchF;
+  });
+  var el = document.getElementById('supplierList');
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty"><div class="ei">🔍</div><h3>No suppliers found</h3><p>Try a different search or filter</p></div>';
+    return;
+  }
+  el.innerHTML = '<div class="sup-list">' +
+    filtered.map(function(s) {
+      var isBlack = s.blacklisted === 'Yes';
+      return '<div class="sup-row'+(isBlack?' bl':'')+'" onclick="openDetail(\''+s.id+'\')">'+
+        '<div class="sup-av">'+s.name.charAt(0)+'</div>'+
+        '<div class="sup-info">'+
+          '<h4>'+s.name+(isBlack?' <span class="badge b-black">Blacklisted</span>':'<span class="badge b-active" style="margin-left:6px">Active</span>')+'</h4>'+
+          '<p>📍 '+s.village+(s.city?', '+s.city:'')+' &nbsp;|&nbsp; 📦 '+(s.products||'—')+'</p>'+
+        '</div>'+
+        '<div class="sup-right"><div class="sp">📞 '+s.phone+'</div><div class="sc">'+s.id+'</div></div>'+
+      '</div>';
+    }).join('') +
+  '</div><p style="font-size:12px;color:var(--gray-400);margin-top:12px;text-align:center">Showing '+filtered.length+' of '+_suppliers.length+' suppliers</p>';
+}
+
+// ── WARNINGS ─────────────────────────────────────────────────
+function loadWarnings() {
+  L(true);
+  api('getWarningNotes', { supplierId: null })
+    .then(function(warns) { L(false); renderWarnings(warns); })
+    .catch(function(){ L(false); });
+}
+function renderWarnings(warns) {
+  var el = document.getElementById('warnList');
+  if (!warns || !warns.length) {
+    el.innerHTML = '<div class="empty"><div class="ei">✅</div><h3>No warnings yet</h3><p>Good — all suppliers are clean!</p></div>';
+    return;
+  }
+  el.innerHTML = warns.map(function(w) {
+    var sc = 'severity-' + w.severity.toLowerCase();
+    var bc = w.severity==='High'?'b-warn-h':w.severity==='Medium'?'b-warn-m':'b-warn-l';
+    return '<div class="warn-card '+sc+'">'+
+      '<div class="wc-top"><h4>'+w.supplierName+' <span style="color:var(--gray-400);font-weight:400;font-size:13px">/ '+w.noteId+'</span></h4>'+
+        '<div style="display:flex;gap:8px;align-items:center">'+
+          (w.product?'<span class="badge b-active">'+w.product+'</span>':'')+
+          '<span class="badge '+bc+'">'+w.severity+' Severity</span>'+
+        '</div></div>'+
+      '<div class="wc-desc">'+w.desc+'</div>'+
+      '<div class="wc-meta">📅 '+w.date+' &nbsp;|&nbsp; Added by: '+w.addedBy+' on '+w.addedOn+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+// ── SUPPLIER DETAIL ───────────────────────────────────────────
+function openDetail(id) {
+  L(true);
+  api('getSupplierDetail', { supplierId: id })
+    .then(function(data) {
+      L(false);
+      if (data) { _detailSup = data.supplier; renderDetail(data); document.getElementById('detailModal').classList.add('show'); }
+    }).catch(function(){ L(false); });
+}
+function closeDetail() { document.getElementById('detailModal').classList.remove('show'); }
+
+function renderDetail(data) {
+  var s = data.supplier, prods = data.products || [], warns = data.warnings || [];
+  var isBlack = s.blacklisted === 'Yes';
+  var btn = document.getElementById('btnBlacklist');
+  btn.textContent = isBlack ? '✅ Remove from Blacklist' : '🚫 Blacklist Supplier';
+  btn.style.background = isBlack ? 'var(--green-light)' : 'var(--red-light)';
+  btn.style.color = isBlack ? 'var(--green)' : 'var(--red)';
+  var avgRating = prods.length ? (prods.reduce(function(s,p){ return s+p.rating; },0)/prods.length).toFixed(1) : '—';
+  var stars = ''; if (prods.length) { var r = Math.round(avgRating); for (var i=1;i<=5;i++) stars += '<span style="color:'+(i<=r?'var(--gold)':'rgba(255,255,255,.2)')+'">★</span>'; }
+  var html = '<div class="detail-header">'+
+    '<div class="dh-top">'+
+      '<div class="dh-avatar">'+s.name.charAt(0)+'</div>'+
+      '<div><div class="dh-name">'+s.name+'</div>'+
+        '<div class="dh-sub">'+s.village+(s.city?', '+s.city:'')+' &nbsp;|&nbsp; '+s.id+'</div>'+
+        '<div style="font-size:18px;margin-top:6px">'+stars+'</div></div>'+
+    '</div>'+
+    '<div class="dh-pills">'+
+      '<span class="dh-pill">📞 '+s.phone+'</span>'+
+      (s.phone2?'<span class="dh-pill">📞 '+s.phone2+'</span>':'')+
+      '<span class="dh-pill">📦 '+(s.products||'No products')+'</span>'+
+      '<span class="dh-pill">⭐ Avg: '+avgRating+'</span>'+
+      (isBlack?'<span class="dh-pill" style="background:rgba(220,38,38,.3)">🚫 BLACKLISTED</span>':'<span class="dh-pill" style="background:rgba(255,255,255,.15)">✅ Active</span>')+
+    '</div></div>';
+  if (warns.length) {
+    html += '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:var(--r);padding:14px;margin-bottom:16px">'+
+      '<div style="font-weight:700;color:var(--red);margin-bottom:8px;font-size:13px">⚠️ '+warns.length+' Warning Note(s)</div>';
+    warns.forEach(function(w){ html += '<div style="font-size:13px;color:#991b1b;padding:4px 0;border-bottom:1px solid #fecaca">'+w.severity+': '+w.desc.substring(0,100)+'...</div>'; });
+    html += '</div>';
+  }
+  html += '<div class="section-head">Product History ('+prods.length+')</div>';
+  if (prods.length) {
+    html += '<div style="display:grid;gap:8px">';
+    prods.forEach(function(p) {
+      var stars2 = ''; for (var i=1;i<=5;i++) stars2 += '<span style="color:'+(i<=p.rating?'var(--gold)':'var(--gray-200)')+'">★</span>';
+      html += '<div style="background:var(--gray-50);border-radius:var(--r);padding:12px 14px;font-size:13px">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'+
+          '<strong>'+p.product+'</strong>'+
+          '<div style="display:flex;gap:6px;align-items:center"><span>'+stars2+'</span>'+
+            (p.price?'<span class="pill pill-earth">₹'+p.price+'</span>':'')+
+            (p.grade?'<span class="pill pill-gray">Grade '+p.grade+'</span>':'')+
+          '</div></div>'+
+        (p.notes?'<div style="color:var(--gray-600);margin-top:4px">'+p.notes+'</div>':'')+
+        '<div style="color:var(--gray-400);margin-top:4px">'+p.lastDate+'</div>'+
+      '</div>';
+    });
+    html += '</div>';
+  } else { html += '<p style="color:var(--gray-400);font-size:13px">No product entries yet.</p>'; }
+  document.getElementById('detailContent').innerHTML = html;
+}
+
+function toggleBlacklist() {
+  if (!_detailSup) return;
+  var makeBlack = _detailSup.blacklisted !== 'Yes';
+  var reason = makeBlack ? prompt('Reason for blacklisting (optional):','') : 'Removed from blacklist by admin';
+  L(true);
+  api('updateBlacklist', { supplierId: _detailSup.id, makeBlack: makeBlack, reason: reason || '' })
+    .then(function(r) {
+      L(false);
+      if (r.success) { _detailSup.blacklisted = makeBlack ? 'Yes' : 'No'; closeDetail(); renderSuppliers(); alert(r.message); }
+      else alert(r.message);
+    }).catch(function(e){ L(false); alert('Error: '+e.message); });
+}
+
+function goAddProductFor() {
+  closeDetail(); goTab('add'); switchAddTab('addprod');
+  if (_detailSup) {
+    setTimeout(function() {
+      var sel = document.getElementById('p-supid');
+      if (sel) sel.value = _detailSup.id;
+    }, 200);
+  }
+}
+
+// ── ALERT ────────────────────────────────────────────────────
+function showAlert(id, msg, type) {
+  var el = document.getElementById(id); if (!el) return;
+  el.className = 'alert alert-'+type+' show';
+  el.innerHTML = (type==='success'?'✅ ':'❌ ') + msg;
+  el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  if (type==='success') setTimeout(function(){ el.classList.remove('show'); }, 7000);
+}
+
+window.onload = function() { loadDashboard(); };
+</script>
+</body>
+</html>
